@@ -62,7 +62,7 @@ export default function Home() {
         setLoading(true);
         try {
             // create the room
-            let res = await axios.post('/api/room/create-room', {
+            const res = await axios.post('/api/room/create-room', {
                 name: roomName,
                 description: description,
                 type: "Public"
