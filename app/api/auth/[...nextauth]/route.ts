@@ -6,12 +6,13 @@ import GoogleProvider from "next-auth/providers/google";
 const handler = NextAuth({
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         url: "https://accounts.google.com/o/oauth2/v2/auth",
         params: {
-          scope: "openid email profile"
+          scope: "openid email profile",
+          prompt: 'consent'
         }
       }
     })
