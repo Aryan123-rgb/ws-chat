@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { Metadata } from 'next';
-import RedirectToHomePage from '@/components/RedirectToHomePage';
 
 export const metadata: Metadata = {
     title: 'TechTalk Dashboard',
@@ -14,7 +13,6 @@ export default function DashboardLayout({
 }) {
     return (
         <>
-            <RedirectToHomePage />
             {children}
         </>
     );
