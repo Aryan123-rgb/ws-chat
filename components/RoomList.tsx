@@ -8,7 +8,7 @@ import {
     CardTitle,
 } from "./ui/card";
 import { useRouter } from "next/navigation";
-import { Loader2, MessageSquare } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import axios from "axios";
 import NoRoomMsg from "./NoRoomMsg";
 

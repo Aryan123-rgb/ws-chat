@@ -1,16 +1,15 @@
 import { prismaclient } from "@/lib/db";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-    const token = await getToken({ req });
-    const userId = token?.userId;
+    const { userId } = await auth();
 
     if (!userId) {
         return NextResponse.json({
             message: "Unauthenticated"
         }, {
-            status: 401,
+            status: 401
         })
     }
 

@@ -1,5 +1,5 @@
 import { prismaclient } from "@/lib/db";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -9,8 +9,7 @@ const linkSchema = z.object({
 
 export async function POST(req: NextRequest) {
     const data = linkSchema.parse(await req.json());
-    const token = await getToken({ req });
-    const userId = token?.userId;
+    const { userId } = await auth();
 
     if (!userId) {
         return NextResponse.json({
@@ -32,7 +31,7 @@ export async function POST(req: NextRequest) {
         })
         if (!exists) {
             // join the room
-            const res = await prismaclient.userToRoom.create({
+            await prismaclient.userToRoom.create({
                 data: {
                     roomId: data.roomId,
                     userId: userId,

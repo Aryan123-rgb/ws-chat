@@ -1,19 +1,20 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  const session = useSession();
   const router = useRouter();
   useEffect(() => {
-    if (session.status == 'authenticated') {
-      router.push('/dashboard/public-chat');
-    }
-  }, [session])
+    // Disable scroll
+    document.body.style.overflow = "hidden";
+    return () => {
+      // Re-enable scroll on unmount
+      document.body.style.overflow = "auto";
+    };
+  }, []);
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center p-6 text-center overflow-hidden">
       <div className="max-w-4xl mx-auto space-y-8">
         <div className="space-y-4">
           <h1 className="text-6xl md:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">
@@ -60,7 +61,7 @@ export default function Home() {
           <Button
             size="lg"
             className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-6 cursor-pointer"
-            onClick={() => signIn()}
+            onClick={() => router.push('/sign-up')}
           >
             Get Started
           </Button>
@@ -68,7 +69,7 @@ export default function Home() {
             variant="outline"
             size="lg"
             className="text-black hover:text-white hover:bg-gray-700 text-lg px-8 py-6 cursor-pointer"
-            onClick={() => signIn()}
+            onClick={() => router.push('/sign-in')}
           >
             Sign In
           </Button>

@@ -6,7 +6,8 @@ import { ArrowLeft, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from 'uuid';
 import axios from "axios";
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
+import { showToast } from "@/lib/toast";
 
 type Message = {
     id: string,
@@ -24,14 +25,13 @@ interface Room {
 export default function ChatRoom() {
     const router = useRouter();
     const params = useParams();
-    const session = useSession();
     const roomId = params?.id as string;
-    const userId = session.data?.userId;
-    const user = session.data?.user;
+    const { isLoaded, isSignedIn, user } = useUser();
     const [currentMessage, setCurrentMessage] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [room, setRoom] = useState<Room>();
     const ws = useRef<null | WebSocket>(null);
+    const userId = user?.id;
 
     const fetchRoomDetails = async () => {
         try {
@@ -59,7 +59,7 @@ export default function ChatRoom() {
 
     const addMessage = async () => {
         try {
-            const res = await axios.post('/api/messages', {
+            await axios.post('/api/messages', {
                 roomId: roomId,
                 content: currentMessage,
             }, {
@@ -71,6 +71,11 @@ export default function ChatRoom() {
     }
 
     useEffect(() => {
+        if (!isLoaded) return;
+        if (!isSignedIn) {
+            showToast("Unexpected error occured", 'error');
+            return;
+        }
         fetchRoomDetails();
         try {
             const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?roomId=${roomId}`);
@@ -101,7 +106,7 @@ export default function ChatRoom() {
         return () => {
             ws.current?.close();
         };
-    }, []);
+    }, [isLoaded, isSignedIn]);
 
     const handleSendMessage = (e: React.FormEvent) => {
         e.preventDefault();

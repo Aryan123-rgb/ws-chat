@@ -1,5 +1,6 @@
 import { prismaclient } from "@/lib/db";
 import { ChatMessage } from "@/types/message";
+import { auth } from "@clerk/nextjs/server";
 import { getToken } from "next-auth/jwt";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -12,13 +13,12 @@ const createMessageSchema = z.object({
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const roomId = searchParams.get('roomId');
-    const token = await getToken({ req });
-    const userId = token?.userId;
+    const { userId } = await auth();
 
     if (!roomId) {
         return NextResponse.json("Invalid Room id passed");
     }
-    
+
     if (!userId) {
         return NextResponse.json({
             message: "Unauthenticated",
@@ -65,8 +65,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     const data = createMessageSchema.parse(await req.json());
-    const token = await getToken({ req });
-    const userId = token?.userId;
+    const { userId } = await auth();
 
     if (!userId) {
         return NextResponse.json({

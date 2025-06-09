@@ -16,15 +16,16 @@ import Navbar from "@/components/Navbar";
 import { UserInterface } from "@/types/message";
 import { useSession } from "next-auth/react";
 import { showToast } from "@/lib/toast";
+import { useUser } from "@clerk/nextjs";
 
 
 
 export default function Home() {
     const router = useRouter();
-    const session = useSession();
-    const userId = session.data?.userId;
+    const { isLoaded, isSignedIn, user } = useUser();
     const [loading, setLoading] = useState<boolean>(false);
     const [users, setUsers] = useState<UserInterface[]>([]);
+    const userId = user?.id;
 
     const fetchUsers = async () => {
         const res = await axios.get('/api/user', {
@@ -36,10 +37,13 @@ export default function Home() {
     }
 
     useEffect(() => {
-        if (userId) {
-            fetchUsers();
+        if (!isLoaded) return;
+        if (!isSignedIn) {
+            showToast("Unexpected error occurend", 'error');
+            return;
         }
-    }, [userId, session]);
+        fetchUsers();
+    }, [isSignedIn, isLoaded]);
 
     const handleStartChat = async (id: string) => {
         if (!id || !userId) {
