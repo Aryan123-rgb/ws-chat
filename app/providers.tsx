@@ -8,7 +8,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <>
       <ClerkProvider>
         {children}
-        <ToastContainer
+        {/* <ToastContainer
           position="top-right"
           autoClose={2000}
           hideProgressBar={false}
@@ -16,7 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           closeOnClick
           rtl={false}
           theme="dark"
-        />
+        /> */}
       </ClerkProvider>
       ;
     </>

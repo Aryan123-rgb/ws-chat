@@ -120,3 +120,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
