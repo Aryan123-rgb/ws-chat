@@ -11,35 +11,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Search, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import axios from 'axios';
+import axios from "axios";
 import Navbar from "@/components/Navbar";
 import { UserInterface } from "@/types/message";
 import { useSession } from "next-auth/react";
 import { showToast } from "@/lib/toast";
 import { useUser } from "@clerk/nextjs";
 
-
-
 export default function Home() {
     const router = useRouter();
     const { isLoaded, isSignedIn, user } = useUser();
     const [loading, setLoading] = useState<boolean>(false);
     const [users, setUsers] = useState<UserInterface[]>([]);
+    const [isfetching, setIsFetching] = useState(false);
     const userId = user?.id;
 
     const fetchUsers = async () => {
-        const res = await axios.get('/api/user', {
+        setIsFetching(true);
+        const res = await axios.get("/api/user", {
             withCredentials: true,
         });
         const fetchedUsers: UserInterface[] = res.data;
         const filteredUsers = fetchedUsers.filter((user) => user.id != userId);
         setUsers(filteredUsers);
-    }
+        setIsFetching(false);
+    };
 
     useEffect(() => {
         if (!isLoaded) return;
         if (!isSignedIn) {
-            showToast("Unexpected error occurend", 'error');
+            showToast("Unexpected error occurend", "error");
             return;
         }
         fetchUsers();
@@ -47,24 +48,28 @@ export default function Home() {
 
     const handleStartChat = async (id: string) => {
         if (!id || !userId) {
-            showToast("Unexpected error occured", 'error');
+            showToast("Unexpected error occured", "error");
             return;
         }
         try {
             setLoading(true);
-            const res = await axios.post('/api/room/join-room-dm', {
-                userId1: userId,
-                userId2: id
-            }, {
-                withCredentials: true
-            })
+            const res = await axios.post(
+                "/api/room/join-room-dm",
+                {
+                    userId1: userId,
+                    userId2: id,
+                },
+                {
+                    withCredentials: true,
+                }
+            );
             const roomId = res.data?.room?.id;
             router.push(`/room/${roomId}`);
             setLoading(false);
         } catch (e) {
             console.log("error creating one to one room", e);
         }
-    }
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
@@ -81,12 +86,20 @@ export default function Home() {
                     </div>
                 </div>
 
-                {users.length === 0 ? (
+                {isfetching ? (
+                    <>
+                        <div className="flex h-full justify-center items-center p-4">
+                            <Loader2 className="h-8 w-8 animate-spin text-white" />
+                        </div>
+                    </>
+                ) : users.length === 0 ? (
                     <div className="col-span-full flex flex-col items-center justify-center py-16 px-4 text-center">
                         <div className="bg-gray-800 p-6 rounded-full mb-4">
                             <User className="h-12 w-12 text-gray-500" />
                         </div>
-                        <h3 className="text-xl font-semibold text-gray-200 mb-2">No users found</h3>
+                        <h3 className="text-xl font-semibold text-gray-200 mb-2">
+                            No users found
+                        </h3>
                         <p className="text-gray-400 max-w-md">
                             Start chatting with other users by searching above
                         </p>

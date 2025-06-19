@@ -12,7 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import axios from 'axios';
+import axios from "axios";
 import RoomList from "@/components/RoomList";
 import Navbar from "@/components/Navbar";
 import NoRoomMsg from "@/components/NoRoomMsg";
@@ -25,7 +25,6 @@ type Room = {
     membersCount: number;
 };
 
-
 export default function Home() {
     const router = useRouter();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -34,10 +33,12 @@ export default function Home() {
     const [joinedRooms, setJoinedRooms] = useState<Room[]>([]);
     const [unjoinedRooms, setUnJoinedRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isfetching, setIsFetching] = useState(false);
 
     const fetchRooms = async () => {
         // get all the rooms created by the current user
-        const res = await axios.get('/api/room', {
+        setIsFetching(true);
+        const res = await axios.get("/api/room", {
             withCredentials: true,
         });
 
@@ -46,35 +47,38 @@ export default function Home() {
 
         setJoinedRooms(jRooms);
         setUnJoinedRooms(ujRooms);
-
-    }
+        setIsFetching(false);
+    };
 
     useEffect(() => {
         fetchRooms();
     }, []);
 
-
     const handleCreateRoom = async () => {
         if (!roomName.trim() || !description.trim()) {
-            showToast("Please enter room name and description", 'info');
+            showToast("Please enter room name and description", "info");
             return;
         }
         setLoading(true);
         try {
             // create the room
-            const res = await axios.post('/api/room/create-room', {
+            const res = await axios.post("/api/room/create-room", {
                 name: roomName,
                 description: description,
-                type: "Public"
-            })
+                type: "Public",
+            });
             const roomId = res.data?.room?.id;
             if (roomId) {
                 // join the room
-                await axios.post('/api/room/join-room', {
-                    roomId
-                }, {
-                    withCredentials: true,
-                })
+                await axios.post(
+                    "/api/room/join-room",
+                    {
+                        roomId,
+                    },
+                    {
+                        withCredentials: true,
+                    }
+                );
                 router.push(`/room/${roomId}`);
             }
         } catch (e) {
@@ -98,24 +102,37 @@ export default function Home() {
                             className="pl-10 bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus-visible:ring-blue-500"
                         />
                     </div>
-                    <Button onClick={() => setIsDialogOpen(true)} className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 cursor-pointer">
+                    <Button
+                        onClick={() => setIsDialogOpen(true)}
+                        className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                    >
                         <Plus className="mr-2 h-4 w-4" />
                         Create Room
                     </Button>
                 </div>
 
-                {joinedRooms.length == 0 && unjoinedRooms.length === 0 ? (
+                {isfetching ? (
+                    <>
+                        <div className="flex h-full justify-center items-center p-4">
+                            <Loader2 className="h-8 w-8 animate-spin text-white" />
+                        </div>
+                    </>
+                ) : joinedRooms.length == 0 && unjoinedRooms.length === 0 ? (
                     <NoRoomMsg />
                 ) : (
                     <div className="space-y-8">
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-200 mb-4">Your Rooms</h2>
+                            <h2 className="text-xl font-semibold text-gray-200 mb-4">
+                                Your Rooms
+                            </h2>
                             <div className="space-y-4">
                                 <RoomList rooms={joinedRooms} />
                             </div>
                         </div>
                         <div>
-                            <h2 className="text-xl font-semibold text-gray-200 mb-4">Discover Rooms</h2>
+                            <h2 className="text-xl font-semibold text-gray-200 mb-4">
+                                Discover Rooms
+                            </h2>
                             <div className="space-y-4">
                                 <RoomList rooms={unjoinedRooms} />
                             </div>
