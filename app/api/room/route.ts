@@ -29,6 +29,9 @@ export async function GET(req: NextRequest) {
 
         // Get all the created public rooms
         const allRooms = await prismaclient.room.findMany({
+            where: {
+                type: 'Public'
+            },
             include: {
                 _count: {
                     select: {

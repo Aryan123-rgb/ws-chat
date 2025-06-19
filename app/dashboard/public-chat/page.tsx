@@ -51,6 +51,15 @@ export default function Home() {
     };
 
     useEffect(() => {
+        // Disable scroll
+        document.body.style.overflow = "hidden";
+        return () => {
+            // Re-enable scroll on unmount
+            document.body.style.overflow = "auto";
+        };
+    }, []);
+
+    useEffect(() => {
         fetchRooms();
     }, []);
 

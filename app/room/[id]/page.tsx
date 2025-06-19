@@ -133,6 +133,15 @@ export default function ChatRoom() {
 
     };
 
+    useEffect(() => {
+        // Disable scroll
+        document.body.style.overflow = "hidden";
+        return () => {
+          // Re-enable scroll on unmount
+          document.body.style.overflow = "auto";
+        };
+      }, []);
+
     return (
         <div className="flex flex-col h-screen bg-gray-900 text-white">
             <header className="bg-gray-800 border-b border-gray-700 p-4 flex-shrink-0">
